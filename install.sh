@@ -61,6 +61,13 @@ fi
 
 # Keep live server data when this script is run again for an update.
 if [[ -f "${INSTALL_DIR}/data/adiaoo.sqlite" ]]; then
+  # Merge any WAL transactions into the main database before copying it.
+  node - "${INSTALL_DIR}/data/adiaoo.sqlite" <<'NODE'
+const { DatabaseSync } = require('node:sqlite');
+const db = new DatabaseSync(process.argv[2]);
+db.exec('PRAGMA wal_checkpoint(TRUNCATE)');
+db.close();
+NODE
   install -d "${tmp_dir}/repo/data"
   cp -f "${INSTALL_DIR}/data/adiaoo.sqlite" "${tmp_dir}/repo/data/adiaoo.sqlite"
 fi
