@@ -70,7 +70,9 @@ install -m 0644 "${tmp_dir}/repo/server.js" "${INSTALL_DIR}/server.js"
 install -m 0644 "${tmp_dir}/repo/adiaoo-macos-desktop-v4.html" "${INSTALL_DIR}/adiaoo-macos-desktop-v4.html"
 install -m 0644 "${tmp_dir}/repo/adiaoo-macos-desktop-v4.css" "${INSTALL_DIR}/adiaoo-macos-desktop-v4.css"
 install -m 0644 "${tmp_dir}/repo/adiaoo-macos-desktop-v4.js" "${INSTALL_DIR}/adiaoo-macos-desktop-v4.js"
-install -m 0644 "${tmp_dir}/repo/data/adiaoo.sqlite" "${INSTALL_DIR}/data/adiaoo.sqlite"
+if [[ -f "${tmp_dir}/repo/data/adiaoo.sqlite" ]]; then
+  install -m 0644 "${tmp_dir}/repo/data/adiaoo.sqlite" "${INSTALL_DIR}/data/adiaoo.sqlite"
+fi
 if [[ -f "${tmp_dir}/repo/README.md" ]]; then
   install -m 0644 "${tmp_dir}/repo/README.md" "${INSTALL_DIR}/README.md"
 fi

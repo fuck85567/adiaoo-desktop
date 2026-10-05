@@ -14,6 +14,14 @@ curl -fsSL https://raw.githubusercontent.com/fuck85567/adiaoo-desktop/master/ins
 
 重复执行同一条命令可以更新代码；服务器上的 `data/adiaoo.sqlite` 会保留，不会被 GitHub 仓库里的初始数据覆盖。
 
+如果首次部署显示的是测试图标，清空测试数据并保留备份：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/fuck85567/adiaoo-desktop/master/reset-test-data.sh | sudo bash
+```
+
+这会清空桌面、回收站、点赞、收藏和排行榜，生成一个带时间戳的 SQLite 备份，然后重启 ADIAOO。
+
 ## Cloudflare Tunnel
 
 一键脚本完成后，在 Cloudflare Zero Trust 的 Tunnel 中创建 Published application：
