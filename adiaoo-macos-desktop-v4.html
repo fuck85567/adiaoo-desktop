@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#31224f">
+  <title>ADIAOO 桌面</title>
+  <link rel="stylesheet" href="./adiaoo-macos-desktop-v4.css">
+</head>
+<body>
+  <header class="menu-bar" aria-label="菜单栏">
+    <button class="help-button" id="helpButton" type="button">帮助</button>
+    <time id="clock" aria-label="当前时间">00:00</time>
+  </header>
+
+  <main class="desktop" id="desktop">
+    <div class="pages-viewport" id="pagesViewport">
+      <div class="pages-track" id="pagesTrack"></div>
+    </div>
+    <!-- Dragged icons live outside the transformed pages so pointer coordinates stay in viewport space. -->
+    <div class="drag-layer" id="dragLayer" aria-hidden="true"></div>
+  </main>
+
+  <div class="page-dots" id="pageDots" aria-label="桌面页面"></div>
+
+  <div class="dock-wrap">
+    <nav class="dock" id="dock" aria-label="桌面工具">
+    <button class="dock-button create" id="createButton" type="button" aria-label="新建图标">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="dock-tooltip">新建</span>
+    </button>
+    <button class="dock-button refresh" id="refreshButton" type="button" aria-label="刷新桌面">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.8-4L3 10M3 5v5h5M4 13a8 8 0 0 0 14.8 4L21 14m0 5v-5h-5"/></svg><span class="dock-tooltip">刷新</span>
+    </button>
+    <button class="dock-button ranking" id="rankingButton" type="button" aria-label="排名榜单">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V9M12 19V5M19 19v-7M3 19h18"/></svg><span class="dock-tooltip">排名榜单</span>
+    </button>
+    <button class="dock-button like" id="likeButton" type="button" aria-label="为喜欢的点赞">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.7c0 5.2-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6Z"/></svg><span class="dock-tooltip">为喜欢的点赞</span>
+    </button>
+    <button class="dock-button favorite" id="favoriteButton" type="button" aria-label="收藏图标">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg><span class="dock-tooltip">收藏</span>
+    </button>
+    <button class="dock-button user-lists" id="userListsButton" type="button" aria-label="我的列表">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c.7-3.4 2.9-5.1 6.5-5.1s5.8 1.7 6.5 5.1"/></svg><span class="dock-tooltip">我的列表</span>
+    </button>
+    <span class="dock-separator" aria-hidden="true"></span>
+    <button class="dock-button trash" id="trashButton" type="button" aria-label="垃圾桶">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12M9 8V5h6v3M8 8l.7 11h6.6L16 8M10 11v5M14 11v5"/></svg><span class="dock-tooltip">垃圾桶</span>
+    </button>
+    </nav>
+  </div>
+
+  <dialog class="modal ranking-modal" id="rankingDialog">
+    <div class="modal-header">
+      <h2>排行榜</h2>
+      <button class="modal-close" id="rankingDialogClose" type="button" aria-label="关闭">×</button>
+    </div>
+    <div class="ranking-tabs" role="tablist" aria-label="排行榜类型">
+      <button class="ranking-tab active" id="likeRankingTab" type="button" role="tab" aria-selected="true">喜欢排行榜</button>
+      <button class="ranking-tab" id="favoriteRankingTab" type="button" role="tab" aria-selected="false">收藏排行榜</button>
+    </div>
+    <div class="ranking-list" id="rankingList" role="tabpanel"></div>
+  </dialog>
+
+  <dialog class="modal favorites-modal" id="favoritesDialog">
+    <div class="modal-header">
+      <h2>我的列表</h2>
+      <button class="modal-close" id="favoritesDialogClose" type="button" aria-label="关闭">×</button>
+    </div>
+    <div class="user-list-tabs" role="tablist" aria-label="我的列表类型">
+      <button class="user-list-tab active" id="likesListTab" type="button" role="tab" aria-selected="true">喜欢列表</button>
+      <button class="user-list-tab" id="favoritesListTab" type="button" role="tab" aria-selected="false">收藏列表</button>
+    </div>
+    <div class="favorites-list" id="userLikesList" role="tabpanel"></div>
+    <div class="favorites-list" id="userFavoritesList" role="tabpanel" hidden></div>
+  </dialog>
+
+  <dialog class="modal" id="iconDialog">
+    <form id="iconForm" method="dialog">
+      <div class="modal-header">
+        <h2 id="iconDialogTitle">新建图标</h2>
+        <button class="modal-close" id="iconDialogClose" type="button" aria-label="关闭">×</button>
+      </div>
+      <input id="iconId" type="hidden">
+      <label class="field-label" for="iconName">名称</label>
+      <input class="field-input" id="iconName" type="text" required autocomplete="off">
+      <label class="field-label" for="iconUrl">网址</label>
+      <input class="field-input" id="iconUrl" type="url" inputmode="url" placeholder="https://example.com" required autocomplete="url">
+      <label class="field-label" for="iconImage">图标图片</label>
+      <div class="image-picker-row">
+        <input class="field-input image-url-input" id="iconImageUrl" type="text" placeholder="粘贴图片地址，或从剪贴板粘贴图片" autocomplete="off">
+        <input id="iconImage" type="file" accept="image/*" hidden>
+        <button class="image-picker-button" id="iconImageChoose" type="button">选择图片</button>
+      </div>
+      <div class="modal-actions">
+        <button class="secondary-button" id="iconDialogCancel" type="button">取消</button>
+        <button class="primary-button" type="submit">保存</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="modal trash-modal" id="trashDialog">
+    <div class="modal-header">
+      <h2>回收站</h2>
+      <button class="modal-close" id="trashDialogClose" type="button" aria-label="关闭">×</button>
+    </div>
+    <input class="field-input" id="trashSearch" type="search" placeholder="搜索已删除图标" autocomplete="off">
+    <div class="trash-list" id="trashList"></div>
+  </dialog>
+
+  <dialog class="modal help-modal" id="helpDialog">
+    <div class="modal-header">
+      <h2>帮助</h2>
+      <button class="modal-close" id="helpDialogClose" type="button" aria-label="关闭">×</button>
+    </div>
+    <p>电脑：双击打开，右键或按住图标打开操作菜单，按住移动可拖动排序。</p>
+    <p>手机：单击打开，长按图标打开操作菜单，长按移动可拖动排序。</p>
+    <p>操作菜单包含应用信息、从桌面移除和取消。单击垃圾桶打开回收站。</p>
+  </dialog>
+
+  <div class="context-menu icon-actions-menu" id="iconActionsMenu" role="menu" aria-label="图标操作">
+    <button type="button" data-action="visit" role="menuitem">访问地址</button>
+    <button type="button" data-action="info" role="menuitem">修改信息</button>
+    <button type="button" data-action="remove" role="menuitem">从桌面移除</button>
+    <button type="button" data-action="cancel" role="menuitem">取消</button>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="./adiaoo-macos-desktop-v4.js"></script>
+</body>
+</html>
