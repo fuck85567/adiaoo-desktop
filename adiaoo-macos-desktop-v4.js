@@ -9,7 +9,10 @@ const API_URL = window.ADIAOO_API_URL || '/api/desktop';
 const CLIENT_KEY = 'adiaoo_desktop_client_id_v1';
 const SLOTS_PER_PAGE = 20;
 const GRID_PADDING = 20;
-const DESKTOP_MAX_COLUMNS = 10;
+// Desktop columns are calculated from the actual viewport width.  Keeping a
+// hard ten-column cap made the right side of wide screens unreachable while
+// dragging.  The saved slot model can create another page when a user places
+// an item beyond the current page's 20-slot block.
 const RANKING_THRESHOLD = 3; // Change this value to control when an icon enters the ranking.
 const LONG_PRESS_MS = 420;
 const MOVE_CANCEL_DISTANCE = 12;
@@ -245,12 +248,11 @@ function gridMetrics(page){
   const dockReserve=isMobile()?112:148;
   const usableHeight=Math.max(baseHeight,pageHeight-dockReserve);
   const availableWidth=Math.max(baseWidth,pageWidth-GRID_PADDING*2);
-  const maxColumns=mobile?4:Math.max(1,Math.min(DESKTOP_MAX_COLUMNS,Math.floor(availableWidth/baseWidth)));
   const widthColumns=Math.max(1,Math.floor(availableWidth/baseWidth));
   const heightRows=Math.max(1,Math.floor((usableHeight-18)/baseHeight));
-  // The grid grows with the viewport. On a wide desktop, use all visible
-  // columns instead of forcing the old five-column minimum.
-  const columnCount=Math.max(1,Math.min(maxColumns,widthColumns));
+  // The grid grows with the viewport. Desktop uses every column that fits;
+  // mobile keeps its four-column phone layout.
+  const columnCount=mobile?Math.min(4,widthColumns):widthColumns;
   const rowCount=heightRows;
   const cellWidth=Math.max(baseWidth,Math.min(132,availableWidth/Math.max(1,columnCount)));
   const cellHeight=baseHeight;
